@@ -1,0 +1,42 @@
+{
+    "xsappname": "multiappconfig",
+    "tenant-mode": "dedicated",
+    "description": "Security profile of called application",
+    "scopes": [
+        {
+            "name": "uaa.user",
+            "description": "UAA"
+        },
+        {
+            "name": "$XSAPPNAME.ProductsEdit",
+            "description": "edit Products"
+        },
+        {
+            "name": "$XSAPPNAME.CategoriesEdit",
+            "description": "edit Categories"
+        }
+    ],
+    "role-templates": [
+        {
+            "name": "Token_Exchange",
+            "description": "UAA",
+            "scope-references": [
+                "uaa.user"
+            ]
+        },
+        {
+            "name": "ProductsEditor",
+            "description": "Products Editor",
+            "scope-references": [
+                "$XSAPPNAME.ProductsEdit"
+            ]
+        },
+        {
+            "name": "ProductsCategoriesEditor",
+            "description": "Categories Editor",
+            "scope-references": [
+                "$XSAPPNAME.CategoriesEdit"
+            ]
+        }
+    ]
+}

@@ -1,0 +1,96 @@
+_schema-version: "3.2"
+ID: multiappconfig
+version: 0.0.1
+modules:
+- name: multiappconfig-app-content
+  type: com.sap.application.content
+  path: .
+  requires:
+  - name: multiappconfig-repo-host
+    parameters:
+      content-target: true
+  build-parameters:
+    build-result: resources
+    requires:
+    - artifacts:
+      - feproducts.zip
+      name: feproducts
+      target-path: resources/
+    - artifacts:
+      - fecategories.zip
+      name: fecategories
+      target-path: resources/
+- name: feproducts
+  type: html5
+  path: app/products
+  build-parameters:
+    build-result: dist
+    builder: custom
+    commands:
+    - npm install
+    - npm run build:cf
+    supported-platforms: []
+- name: fecategories
+  type: html5
+  path: app/categories
+  build-parameters:
+    build-result: dist
+    builder: custom
+    commands:
+    - npm install
+    - npm run build:cf
+    supported-platforms: []
+- name: multiappconfig-approuter
+  type: approuter.nodejs
+  path: multiappconfig-approuter
+  requires:
+  - name: multiappconfig_html_repo_runtime
+  - name: multiappconfig-dest-srv
+  - name: uaa_multiappconfig
+  parameters:
+    disk-quota: 256M
+    memory: 256M
+resources:
+- name: multiappconfig-repo-host
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: html5-apps-repo
+    service-name: multiappconfig-html5-srv
+    service-plan: app-host
+- name: multiappconfig-dest-srv
+  type: org.cloudfoundry.managed-service
+  parameters:
+    config:
+      HTML5Runtime_enabled: true
+      init_data:
+        instance:
+          destinations:
+          - Authentication: NoAuthentication
+            Name: ui5
+            ProxyType: Internet
+            Type: HTTP
+            URL: https://ui5.sap.com
+          - Authentication: NoAuthentication
+            Name: northwind
+            ProxyType: Internet
+            Type: HTTP
+            URL: https://services.odata.org
+          existing_destinations_policy: update
+      version: 1.0.0
+    service: destination
+    service-name: multiappconfig-dest-srv
+    service-plan: lite
+- name: multiappconfig_html_repo_runtime
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: html5-apps-repo
+    service-plan: app-runtime
+- name: uaa_multiappconfig
+  type: org.cloudfoundry.managed-service
+  parameters:
+    path: ./xs-security.json
+    service: xsuaa
+    service-name: multiappconfig-xsuaa-service
+    service-plan: application
+parameters:
+  deploy_mode: html5-repo
